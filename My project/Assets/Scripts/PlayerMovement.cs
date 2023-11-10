@@ -1,34 +1,26 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
     private float horizontal;
     private float speed = 8f;
-    private float jumpForce = 20f;
+    private float jumpingPower = 16f;
     private bool isFacingRight = true;
 
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask groundLayer;
 
-
-    public global::System.Single Speed { get => speed; set => speed = value; }
-
-
-    // Update is called once per frame
     void Update()
     {
         horizontal = Input.GetAxisRaw("Horizontal");
 
         if (Input.GetButtonDown("Jump") && IsGrounded())
         {
-            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+            rb.velocity = new Vector2(rb.velocity.x, jumpingPower);
         }
 
-
-        if (Input.GetButtonDown("Jump") && rb.velocity.y > 0f)
+        if (Input.GetButtonUp("Jump") && rb.velocity.y > 0f)
         {
             rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.5f);
         }
@@ -36,26 +28,24 @@ public class PlayerMovement : MonoBehaviour
         Flip();
     }
 
+    private void FixedUpdate()
+    {
+        rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);
+    }
+
     private bool IsGrounded()
     {
         return Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
     }
-    private void FixedUpdate()
-    {
-        rb.velocity = new Vector2(horizontal * Speed, rb.velocity.y);
-    }
 
     private void Flip()
     {
-        if ((isFacingRight && horizontal < 0f) || (!isFacingRight && horizontal > 0f))
+        if (isFacingRight && horizontal < 0f || !isFacingRight && horizontal > 0f)
         {
             isFacingRight = !isFacingRight;
             Vector3 localScale = transform.localScale;
-            localScale.x = Mathf.Sign(localScale.x) * -1f;
+            localScale.x *= -1f;
             transform.localScale = localScale;
         }
     }
-
-
-    
 }
